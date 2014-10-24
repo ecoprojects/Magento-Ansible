@@ -6,6 +6,31 @@
   connection: local
   gather_facts: False
   tasks:
+    - name: Load Balancer create request
+      local_action:
+        module: rax_clb
+        credentials: rax.py
+        name: Magento-lb
+        port: 80
+        protocol: HTTP
+        type: PUBLIC
+        timeout: 30
+        region: IAD
+        wait: yes
+        state: present
+        meta:
+          app: magento
+      register: clb
+
+    - name: Build an Isolated Network
+      local_action:
+        module: rax_network
+        credentials: rax.py
+        region: IAD
+        label: magento-net
+        cidr: 192.168.1.0/24
+        state: present
+
     - name: Create Database Server(s)
       local_action:
         module: rax
@@ -65,6 +90,20 @@
         ansible_ssh_pass: "{{ item.rax_adminpass }}"
         ansible_ssh_user: root
         groupname: web
+      with_items: rax.success
+      when: rax.action == 'create'
+
+    - name: Add servers to LB
+      local_action:
+        module: rax_clb_nodes
+        credentials: rax.py
+        load_balancer_id: "{{ clb.balancer.id }}"
+        address: "{{ item.rax_networks.public|first }}"
+        port: 80
+        condition: enabled
+        type: primary
+        wait: yes
+        region: IAD
       with_items: rax.success
       when: rax.action == 'create'
 
