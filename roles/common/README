@@ -1,0 +1,16 @@
+main.yml - Common role playbook
+--------
+
+Tasks performed:
+
+1. Installs libselinux-python
+2. Installs Epel
+3. Copies over IUS Release rpm and installs
+4. Configures iptables
+
+Included Files:
+
+1. iptables-save  
+2. ius-release-1.0-11.ius.el6.noarch.rpm  
+3. remi.repo  
+4. RPM-GPG-KEY-EPEL-6

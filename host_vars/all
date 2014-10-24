@@ -1,0 +1,2 @@
+nfs_master: {{ hostvars[groups['webservers'][0]['ansible_eth0']['ipv4']['address'] }}
+nfs_client: {{ hostvars[groups['webservers'][1:2]['ansible_eth0']['ipv4']['address'] }}

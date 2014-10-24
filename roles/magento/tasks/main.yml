@@ -1,0 +1,62 @@
+---
+- name: Create Folder
+  command: mkdir -p /var/www/vhosts/{{ domain_name }}/
+  
+- name: Download magento
+  get_url: url=http://www.magentocommerce.com/downloads/assets/{{ magento_version }}/magento-{{ magento_version }}.tar.gz dest=/var/www/vhosts/{{ domain_name }}/magento-{{ magento_version }}.tar.gz
+
+- name: Extract Magento
+  command: chdir=/var/www/vhosts/{{ domain_name }}/ /bin/tar xvf magento-{{ magento_version }}.tar.gz
+
+- name: Move Magento to Root
+  shell: chdir=/var/www/vhosts/{{ domain_name }}/ mv magento/* .
+
+- name: Move htaccess file
+  command: chdir=/var/www/vhosts/{{ domain_name }}/ mv magento/.htaccess .
+  
+- name: Add user "magento"
+  user: name=magento group=apache home=/var/www/vhosts/{{ domain_name }}
+
+- name: Change ownership of magento installation 1
+  file: path=/var/www/vhosts/{{ domain_name }}/ owner=magento group=apache state=directory recurse=yes
+
+- name: Change ownership of magento installation 2
+  shell: chdir=/var/www/vhosts/{{ domain_name }}/ find . -type f -exec chmod 644 {} \;
+
+- name: Change ownership of magento installation 3
+  shell: chdir=/var/www/vhosts/{{ domain_name }}/ find . -type d -exec chmod 755 {} \;
+
+- name: Change ownership of magento installation 4
+  shell: chdir=/var/www/vhosts/{{ domain_name }}/ chmod o+w var var/.htaccess app/etc
+
+- name: Change ownership of magento installation 5
+  shell: chdir=/var/www/vhosts/{{ domain_name }}/ chmod 550 mage
+
+- name: Change ownership of magento installation 6
+  shell: chdir=/var/www/vhosts/{{ domain_name }}/ chmod -R o+w media
+
+- name: Mage Setup
+  shell: chdir=/var/www/vhosts/{{ domain_name }}/ ./mage mage-setup .
+  
+- name: Mage Stable State
+  shell: chdir=/var/www/vhosts/{{ domain_name }}/ ./mage config-set preferred_state stable
+
+- name: Install Magento
+  shell: chdir=/var/www/vhosts/{{ domain_name }}/ php -f install.php -- --license_agreement_accepted "yes" --locale "en_US" --timezone "America/Phoenix" --default_currency "USD" --db_host "{{ hostvars[item]['ansible_eth1']['ipv4']['address'] }}" --db_name "{{ magento_db_name }}" --db_user "{{ magento_db_user }}" --db_pass "{{ magento_db_password }}" --url "{{ magento_domain }}" --skip_url_validation --use_rewrites "yes" --use_secure "no" --secure_base_url "" --use_secure_admin "no" --admin_firstname "{{ magento_admin_first }}" --admin_lastname "{{ magento_admin_last }}" --admin_email "{{ magento_admin_email }}" --admin_username "{{ magento_admin_user }}" --admin_password "{{ magento_admin_pass }}"
+  with_items: groups['db']
+
+- name: Refresh Index
+  shell: chdir=/var/www/vhosts/{{ domain_name }}/ php -f shell/indexer.php reindexall
+  
+- name: Remove TAR files
+  shell: chdir=/var/www/vhosts/{{ domain_name }}/ rm -rf magento-{{ magento_version }}.tar.gz magento-sample-data-{{ sample_version }}.tar.gz
+
+- name: Remove SQL and txt files
+  shell: chdir=/var/www/vhosts/{{ domain_name }}/ rm -rf *.sample *.txt data.sql
+  
+- name: restart iptables
+  service: name=iptables state=restarted
+
+- name: restart httpd
+  service: name=httpd state=restarted
+

@@ -1,0 +1,2 @@
+#/var/www/vhosts/{{ domain_name }}/media {{ hostvars[groups['webservers']['ansible_eth0']['ipv4']['address'] }}(rw,sync,no_root_squash,no_subtree_check)
+/var/www/vhosts/{{ domain_name }}/media {{ network_cidr }}(rw,sync,no_root_squash,no_subtree_check)

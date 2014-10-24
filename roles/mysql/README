@@ -1,0 +1,19 @@
+main.yml - MySQL role playbook
+--------
+
+Tasks performed:
+
+1. Installs Mysql package
+2. Creates Mysql configuration file
+3. Starts Mysql Service
+4. Create Folder
+5. Download Sample
+6. Extract Sample
+7. Create magento database
+8. Create magento database user
+9. Create magento database user
+10. Import Sample
+
+Templates Included:
+
+1. my.cnf.j2

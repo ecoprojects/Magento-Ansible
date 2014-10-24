@@ -1,0 +1,6 @@
+---
+- name: Mount NFS directory
+  shell: mount {{ hostvars[groups['webservers'][0]]['ansible_eth0']['ipv4']['address'] }}:/var/www/hosts/{{ domain_name }}/media /var/www/vhosts/{{ domain_name }}/media
+
+- name: Add NFS to fstab
+  shell: echo '{{ hostvars[groups['webservers'][0]]['ansible_eth0']['ipv4']['address'] }}:/var/www/hosts/{{ domain_name }}/media /var/www/vhosts/{{ domain_name }}/media nfs defaults' >> /etc/fstab 

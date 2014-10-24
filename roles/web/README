@@ -1,0 +1,38 @@
+main.yml - Web role playbook
+--------
+
+Tasks performed:
+
+1. Install httpd
+2. Create folder for VirtualHosts
+3. Copy httpd configuration for domain
+4. Copy httpd configuration for httpd
+5. Copy httpd configuration for ports
+6. restart httpd
+7. Install php and deps 
+    - php
+    - php-xml
+    - php-pdo_mysql
+    - php-xml
+    - php-mbstring
+    - php-mysql
+    - php-gd
+    - php-mcrypt
+    - mod_ssl
+    - vim
+8. Install Varnish RPM
+9. Install Varnish
+10. Copy varnish configuration
+11. Copy varnish vcl configuration
+12. Start varnish
+
+Templates Included:
+
+1. default.vcl  
+2. httpd.conf  
+3. ports.conf  
+4. varnish  
+5. vhost.conf
+
+
+

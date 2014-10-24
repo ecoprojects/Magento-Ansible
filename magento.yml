@@ -1,0 +1,114 @@
+# This will create Magento Environment in Rackspace Public Cloud
+#
+---
+- name: Build environment
+  hosts: localhost
+  connection: local
+  gather_facts: False
+  tasks:
+    - name: Create Database Server(s)
+      local_action:
+        module: rax
+        credentials: rax.py
+        name: magento-db
+        flavor: "{{ db_flavor }}"
+        image: centos-65
+        disk_config: manual
+        networks:
+          - public
+          - private
+        region: IAD
+        state: present
+        group: database
+        count: "{{ db_count }}"
+        wait: yes
+        files:
+          /root/.ssh/digital_id.pub: /root/.ssh/authorized_keys
+      register: rax
+
+    - name: Add database servers to group
+      local_action:
+        module: add_host
+        hostname: "{{ item.name }}"
+        ansible_ssh_host: "{{ item.rax_accessipv4 }}"
+        ansible_ssh_pass: "{{ item.rax_adminpass }}"
+        ansible_ssh_user: root
+        groupname: database
+      with_items: rax.success
+      when: rax.action == 'create'
+
+    - name: Create Web Server(s)
+      local_action:
+        module: rax
+        credentials: rax.py
+        name: MagentoWeb
+        flavor: "{{ web_flavor }}"
+        image: centos-65
+        disk_config: manual
+        networks:
+          - public
+          - private
+        region: IAD
+        state: present
+        group: web
+        count: "{{ web_count }}"
+        wait: yes
+        files:
+          /root/.ssh/digital_id.pub: /root/.ssh/authorized_keys
+      register: rax
+
+    - name: Add web servers to group
+      local_action:
+        module: add_host
+        hostname: "{{ item.name }}"
+        ansible_ssh_host: "{{ item.rax_accessipv4 }}"
+        ansible_ssh_pass: "{{ item.rax_adminpass }}"
+        ansible_ssh_user: root
+        groupname: web
+      with_items: rax.success
+      when: rax.action == 'create'
+
+    - name: Add NFS Master to group
+      local_action:
+        module: add_host
+        hostname: "{{ item.name }}"
+        ansible_ssh_host: "{{ hostvars[groups['webservers'][0]['ansible_eth0']['ipv4']['address'] }}"
+        ansible_ssh_pass: "{{ item.rax_adminpass }}"
+        ansible_ssh_user: root
+        groupname: nfsmaster
+      with_items: rax.success
+      when: rax.action == 'create'
+
+    - name: Add NFS Clients to group
+      local_action:
+        module: add_host
+        hostname: "{{ item.name }}"
+        ansible_ssh_host: "{{ hostvars[groups['webservers'][1:2]['ansible_eth0']['ipv4']['address'] }}"
+        ansible_ssh_pass: "{{ item.rax_adminpass }}"
+        ansible_ssh_user: root
+        groupname: nfsmaster
+      with_items: rax.success
+      when: rax.action == 'create'
+
+
+- name: Database Configuration
+  hosts: database 
+  roles:
+    - common
+    - mysql
+
+- name: Web Server Configuration
+  hosts: web
+  roles:
+    - common
+    - web
+
+- name: Configure NFS Master
+  hosts: nfsmaster
+  roles:
+    - nfsmaster
+
+- name: Configure NFS Clients
+  hosts: nfsclient
+  roles:
+    - nfsclient

@@ -1,0 +1,8 @@
+magento.yml - Creates the Magento Environment
+-----------
+
+1. Creates Cloud Load Balancer
+2. Creates X number of Database Servers
+3. Creates X number of Webservers
+4. Creates Private Cloud Network and attachs to all servers for extra layer of security
+5. Applies roles to the appropriate servers
