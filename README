@@ -7,4 +7,3 @@ magento.yml - Creates the Magento Environment
 4. Creates Private Cloud Network and attachs to all servers for extra layer of security
 5. Applies roles to the appropriate servers 
 
-test
