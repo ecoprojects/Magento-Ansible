@@ -1,5 +1,6 @@
 magento.yml - Creates the Magento Environment
 -----------
+Test
 
 1. Creates Cloud Load Balancer
 2. Creates X number of Database Servers
