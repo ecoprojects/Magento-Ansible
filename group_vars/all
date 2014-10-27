@@ -13,7 +13,6 @@ mysql_port: 3306
 # This is used for the nginx server configuration, but # access to the
 # magento site is not restricted by a # named host.
 domain_name: testdomain.com
-server_hostname: testdomain.com
 
 # Magento Admin info
 magento_admin_first: admin
@@ -26,7 +25,20 @@ magento_domain: http://testdomain.com
 # Database Server Information
 db_flavor: performance1-4
 db_count: 1
+db_name: MagentoDB
 
 # Web Server Information
 web_flavor: performance1-2
 web_count: 3
+web_name: MagentoWeb
+
+#Cloud Networks Information
+network_cidr: 192.168.1.0/24
+network_name: MagentoNet
+
+#Cloud LB Information
+clb_name: MagentoLB
+
+#General Information
+region: IAD
+server_image: centos-65
