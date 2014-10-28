@@ -1,17 +1,6 @@
-# Tasks done when applying the common role
 ---
-- name: Install Epel
-  yum: name=epel-release state=present
+- include: common_redhat.yml
+  when: ansible_os_family == 'RedHat'
 
-- name: Copy IUS Release
-  copy: src=ius-release-1.0-13.ius.centos6.noarch.rpm dest=/root
-
-- name: Install IUS
-  shell: chdir=/root rpm -Uvh ius-release-1.0-13.ius.centos6.noarch.rpm
-
-- name: Install libselinux-python
-  yum: name=libselinux-python state=present
-
-- name: Setup iptables
-  copy: src=iptables-save dest=/etc/sysconfig/iptables
-  notify: restart iptables
+- include: common_debian.yml
+  when: ansible_os_family == 'Debian'

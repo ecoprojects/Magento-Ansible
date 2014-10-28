@@ -1,0 +1,66 @@
+---
+- name: Install httpd
+  yum: name=httpd state=present
+
+- name: Create Folder
+  command: mkdir -p /etc/httpd/vhost.d/
+
+- name: Copy httpd configuration for domain
+  template: src=vhost_redhat.conf dest=/etc/httpd/vhost.d/{{ domain_name }}.conf
+
+- name: Copy httpd configuration for httpd
+  template: src=httpd.conf dest=/etc/httpd/conf/httpd.conf
+
+- name: Copy httpd configuration for ports
+  template: src=ports.conf dest=/etc/httpd/ports.conf
+  notify: restart httpd
+
+- name: httpd starts on reboot
+  shell: chkconfig nfs on
+
+- name: restart httpd
+  service: name=httpd state=started enabled=yes
+
+- name: Install php and deps 
+  yum: name={{ item }} state=present
+  with_items:
+    - php
+    - php-xml
+    - php-pdo_mysql
+    - php-xml
+    - php-mbstring
+    - php-mysql
+    - php-gd
+    - php-mcrypt
+    - mod_ssl
+    - vim
+
+- name: Install RPM
+  shell: rpm --nosignature -i http://repo.varnish-cache.org/redhat/varnish-3.0/el6/noarch/varnish-release/varnish-release-3.0-1.el6.noarch.rpm
+
+- name: Install Varnish
+  yum: name=varnish state=present
+  
+- name: Start varnish
+  service: name=varnish state=started enabled=yes
+
+- name: varnish starts on reboot
+  shell: chkconfig varnish on
+
+- name: Install nfs-utils
+  yum: name=nfs-utils state=installed
+
+- name: Install nfs-utils-lib
+  yum: name=nfs-utils-lib state=installed
+
+- name: Start rpcbind and nfs
+  service: name={{ item }} state=started enabled=yes
+  with_items:
+    - rpcbind
+    - nfs
+
+- name: NFS starts on reboot
+  shell: chkconfig nfs on
+
+- name: Create domain directory and NFS directory
+  shell: mkdir -p /var/www/vhosts/{{ domain_name }}/media

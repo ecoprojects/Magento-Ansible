@@ -1,3 +1,6 @@
 ---
-- name: Export directory
-  shell: exportfs -a
+- include: nfsmaster_redhat.yml
+  when: ansible_os_family == 'RedHat'
+
+- include: nfsmaster_debian.yml
+  when: ansible_os_family == 'Debian'
