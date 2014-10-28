@@ -1,0 +1,17 @@
+# Tasks done when applying the common role
+---
+- name: update Ubuntu
+  shell: apt-get update
+
+- name: Install python-selinux
+  apt: pkg=python-selinux state=installed
+
+- name: Install ntpdate
+  apt: pkg=ntpdate state=installed
+
+- name: Install sysv-rc-conf
+  apt: pkg=sysv-rc-conf state=installed
+
+#- name: Setup iptables
+#  copy: src=iptables-save dest=/etc/sysconfig/iptables
+#  notify: restart iptables

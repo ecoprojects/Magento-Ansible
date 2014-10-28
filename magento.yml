@@ -74,7 +74,7 @@
         networks:
           - public
           - private
-          - "{{ network_cidr }}"
+          - "{{ network_name }}"
         region: "{{ region }}"
         state: present
         group: web

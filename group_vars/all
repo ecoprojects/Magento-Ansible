@@ -41,4 +41,4 @@ clb_name: MagentoLB
 
 #General Information
 region: IAD
-server_image: centos-65
+server_image: cc6e0096-84f9-4beb-a21e-d80a11a769d8

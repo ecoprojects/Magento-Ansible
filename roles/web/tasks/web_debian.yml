@@ -1,0 +1,53 @@
+---
+- name: Install apache2
+  apt: pkg=apache2 state=installed
+
+- name: Copy apache2 configuration for domain
+  template: src=vhost_debian.conf dest=/etc/apache2/sites-enabled/{{ domain_name }}.conf
+
+- name: restart apache2
+  service: name=apache2 state=started enabled=yes
+
+- name: start apache on reboot
+  shell: sysv-rc-conf apache2 on
+
+- name: Install php and deps 
+  apt: pkg={{ item }} state=present
+  with_items:
+    - php
+    - php-xml
+    - php-pdo_mysql
+    - php-xml
+    - php-mbstring
+    - php-mysql
+    - php-gd
+    - php-mcrypt
+    - mod_ssl
+    - vim
+
+- name: Install Varnish
+  apt: pkg=varnish state=present
+  
+- name: Start varnish
+  service: name=varnish state=started enabled=yes
+
+- name: start varnish on reboot
+  shell: sysv-rc-conf varnish on
+
+- name: Install nfs-common
+  apt: pkg=nfs-common state=installed
+
+- name: Install nfs-kernel-server
+  apt: pkg=nfs-kernel-server state=installed
+
+- name: Start rpcbind and nfs
+  service: name={{ item }} state=started enabled=yes
+  with_items:
+    - rpcbind
+    - nfs
+
+- name: NFS starts on reboot
+  shell: chkconfig nfs on
+
+- name: Create domain directory and NFS directory
+  shell: mkdir -p /var/www/vhosts/{{ domain_name }}/media

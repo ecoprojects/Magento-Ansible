@@ -1,0 +1,26 @@
+---
+- name: Install Mysql package
+  yum: name={{ item }} state=present
+  with_items:
+   - mysql-server
+   - MySQL-python
+   - libselinux-python
+   - libsemanage-python
+
+- name: Create Mysql configuration file
+  template: src=my.cnf.j2 dest=/etc/my.cnf
+  notify: 
+  - restart mysql
+
+- name: Start Mysql Service
+  service: name=mysqld state=started enabled=true
+
+- name: Create magento database
+  mysql_db: name={{ magento_db_name }} state=present
+
+- name: Create magento database user
+  mysql_user: name={{ magento_db_user }} password={{ magento_db_password }} priv={{ magento_db_name }}.*:ALL host='192.168.1.%' state=present
+  
+- name: Create magento database user
+  mysql_user: name={{ magento_db_user }} password={{ magento_db_password }} priv={{ magento_db_name }}.*:ALL host='localhost' state=present
+  
