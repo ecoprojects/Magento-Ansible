@@ -14,15 +14,11 @@
 - name: Install php and deps 
   apt: pkg={{ item }} state=present
   with_items:
-    - php
-    - php-xml
-    - php-pdo_mysql
-    - php-xml
-    - php-mbstring
-    - php-mysql
-    - php-gd
-    - php-mcrypt
-    - mod_ssl
+    - php5
+    - php5-gd
+    - php5-mysql
+    - libapache2-mod-php5
+    - php5-mcrypt
     - vim
 
 - name: Install Varnish
@@ -44,10 +40,13 @@
   service: name={{ item }} state=started enabled=yes
   with_items:
     - rpcbind
-    - nfs
+    - nfs-kernel-server
 
 - name: NFS starts on reboot
-  shell: chkconfig nfs on
+  shell: sysv-rc-conf nfs-kernel-server on
+
+- name: rpcbind starts on reboot
+  shell: sysv-rc-conf rpcbind on
 
 - name: Create domain directory and NFS directory
   shell: mkdir -p /var/www/vhosts/{{ domain_name }}/media
